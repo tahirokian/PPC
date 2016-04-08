@@ -44,6 +44,24 @@ And do some benchmarking to see that it performs well:
 
 In the benchmarks, the last column is the running time in seconds.
 
+If you are happy with your code, you can submit it for grading:
+
+    ./grading do
+
+If all goes well, it will create a file "submission-WEEK.txt".
+Add both your code and the submission file to your Git repository,
+commit, and push for grading.
+
+For more information on the grading tool, run:
+
+    ./grading
+
+Try e.g.:
+
+    ./grading info
+    ./grading overview all
+    ./grading show all
+
 
 Variants
 --------
