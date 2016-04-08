@@ -1,0 +1,24 @@
+#!/bin/sh
+
+if [ $(uname) = "Darwin" ]; then
+    base=""
+    full="-fsanitize=undefined"
+else
+    base="-fsanitize=address"
+    full="-fsanitize=address -fsanitize=undefined"
+fi
+
+case "$($1 -dumpversion)" in
+4.8*)
+    echo "$base"
+    exit 0
+    ;;
+4.9*)
+    echo "$full"
+    exit 0
+    ;;
+5.*)
+    echo "$full"
+    exit 0
+    ;;
+esac
