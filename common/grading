@@ -726,6 +726,7 @@ class Grading:
             error("Unknown command: {}".format(cmd))
 
     def help(self):
+        loads = os.getloadavg()
         print """
 Usage: grading COMMAND [TASK ...]
 
@@ -755,7 +756,12 @@ Status:
 
   - root directory of your repository: {root}
   - computer: {host}, {system} ({valid_host})
+  - load averages: {l1:.2f}, {l5:.2f}, {l15:.2f}
   - date: {week}
+
+Hint: to read long outputs with colours, try piping to "less -R":
+
+    grading show all | less -R
 """.format(
             current_task="not specified" if self.current_task is None else self.current_task,
             all_tasks=" ".join(self.all_tasks),
@@ -764,6 +770,9 @@ Status:
             valid_host='valid' if self.valid_host else 'not valid',
             root=self.root,
             week=self.week_label,
+            l1=loads[0],
+            l5=loads[1],
+            l15=loads[2],
         )
 
 
