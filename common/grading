@@ -627,11 +627,12 @@ class Grading:
             else:
                 warning("This does not seem to be a valid classroom computer, but proceeding anyway...")
         loads = os.getloadavg()
+        high_load = loads[0] > 1
         print
         print "Load average for 1 min: {b}{:.2f}{n},  5 min: {b}{:.2f}{n},  15 min: {b}{:.2f}{n}".format(
             *loads, b=col.bold, n=col.reset
         )
-        if loads[0] > 1:
+        if high_load:
             warning("System load is fairly high, careful!")
         for taskid in tasks:
             task = self.task_map[taskid]
@@ -682,6 +683,9 @@ class Grading:
 
             except KeyboardInterrupt:
                 error("Interrupted")
+
+        if high_load:
+            warning("System load was fairly high when you started grading, careful!")
 
     def ui(self):
         args = sys.argv[1:]
