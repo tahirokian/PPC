@@ -4,7 +4,7 @@
 // ny: number of rows in the input matrix.
 // nx: number of columns in the input matrix.
 // data: input matrix, ny * nx elements.
-// out: output matrix, ny * ny elements.
+// result: output matrix, ny * ny elements.
 //
 // For all 0 <= y < ny and 0 <= x < nx, the element
 // at row y and column x is stored in data[x + y*nx].
