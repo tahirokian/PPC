@@ -20,17 +20,18 @@ inline float median(std::vector<float> &v){
 
 void mf(int ny, int nx, int hy, int hx, const float* in, float* out) {
   int yUp, yDown, xLeft, xRight;
+  int x, y, i, j;
   std::vector<float> v;
   v.reserve(hx*hy);
-  for (int y = 0; y < ny; y++){
+  for (y = 0; y < ny; y++){
       yUp = std::max( (y-hy), 0 );
       yDown = std::min( (y+hy), (ny-1) );
-      for (int x = 0; x < nx; x++){
+      for (x = 0; x < nx; x++){
         xLeft = std::max( (x-hx), 0 );
         xRight = std::min( (x+hx), (nx-1) );
         v.clear();
-        for (int j=yUp; j<=yDown; j++){
-          for (int i=xLeft; i<=xRight; i++){
+        for (j=yUp; j<=yDown; j++){
+          for (i=xLeft; i<=xRight; i++){
             v.push_back(in[i + (j*nx)]);
           }
         }
