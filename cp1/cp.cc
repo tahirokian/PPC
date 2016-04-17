@@ -19,26 +19,28 @@ void correlate(int ny, int nx, const float* data, float* result){
     rowEnd = nx+rowStart;
     //Find mean of the current row
     rowMean = std::accumulate(data+rowStart, data+rowEnd, 0.0) / double(nx);
-    //subtract each element of the row from mean. Normalize to make the row with mean of 0
+    //Subtract each element of the current row from mean to make row zero mean
     std::transform(data+rowStart, data+rowEnd, zeroMeanVec.begin(), [&rowMean](double val){ return (val - rowMean);});
-    //Find square of each element of the row
+    //Find square of each element of the current row
     std::transform(zeroMeanVec.begin(), zeroMeanVec.end(), elemSqrdVec.begin(), [](double val){ return (val * val);});
-    //Find sample standard deviation of the row
+    //Find normalization factor  of the current row
     normFactor = std::sqrt(std::accumulate(elemSqrdVec.begin(), elemSqrdVec.end(), 0.0));
-    //Normalize it so that the sum of the squares of the elements of the row is 1
+    //Normalize the current row so that the sum of the squares of the elements of the row is 1 with zero mean
     std::transform(zeroMeanVec.begin(), zeroMeanVec.end(), zeroMeanVec.begin(), [&normFactor](double val){ return (val / normFactor);});
-    //Save the normalized result in a matriz of dimension ny*nx
+    //Save the normalized result in a matrix of dimension ny*nx
     std::copy(zeroMeanVec.begin(), zeroMeanVec.end(), X[y].begin());
   }
+  //Matrix transpose
   for (j=0; j<ny; ++j){
     for (i=0; i<nx; ++i){
       XT[i][j] = X[j][i];
     }
   }
-  for (j=0; j<ny; ++j){           //Move on rows of X
-    for (k=0; k<nx; ++k){         //Move on column of X and rows of XT
-      for (i=j; i<ny; ++i){       //Move on columns of XT
-        result[i + (j*ny)] += (X[j][k] * XT[k][i]);
+  //Matrix multiplication
+  for (j=0; j<ny; ++j){           //Move through rows of X
+    for (k=0; k<nx; ++k){         //Move through column of X and rows of XT
+      for (i=j; i<ny; ++i){       //Move through columns of XT
+         result[i + (j*ny)] += (X[j][k] * XT[k][i]);
       }
     }
   }
