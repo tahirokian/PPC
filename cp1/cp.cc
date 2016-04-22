@@ -11,6 +11,7 @@ void correlate(int ny, int nx, const float* data, float* result){
   int rowStart;
   int rowEnd;
   double normFactor;
+  //double sum=0;
   std::vector<double> zeroMeanVec(nx), elemSqrdVec(nx);
   std::vector<std::vector<double>> X(ny, std::vector<double>(nx));
   std::vector<std::vector<double>> XT(nx, std::vector<double>(ny));
