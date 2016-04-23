@@ -2,13 +2,12 @@
 #include <algorithm>   // std::transform, std::copy, std::max
 #include <vector>      // std::vector
 #include <cmath>       // std::sqrt
-
 #include "cp.h"
 
 void correlate(int ny, int nx, const float* data, float* result){
   int i, j, k, y;
   double rowMean, sum, normFactor;
-  int rowStart, rowEnd;
+  int rowStart, rowEnd, rowNumber;
   std::vector<double> zeroMeanVec(nx), elemSqrdVec(nx);
   std::vector<std::vector<double>> X(ny, std::vector<double>(nx));
   for(y = 0; y < ny; ++y){
@@ -28,14 +27,15 @@ void correlate(int ny, int nx, const float* data, float* result){
     std::copy(zeroMeanVec.begin(), zeroMeanVec.end(), X[y].begin());
   }
   //Matrix multiplication
-  #pragma omp parallel for schedule(static,1) private(i, k, sum)
+  #pragma omp parallel for schedule(static,1) private(i, k, sum, rowNumber)
   for (j=0; j<ny; ++j){           //Move through rows of X
+    rowNumber = j * ny;
     for (i=j; i<ny; ++i){         //Move through rows of X for i >= j
       sum = 0;
       for (k=0; k<nx; ++k){       //Move through columns of X
         sum += (X[j][k] * X[i][k]);
       }
-      result[i + (j*ny)] += sum;
+      result[i + rowNumber] += sum;
     }
   }
 }
