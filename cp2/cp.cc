@@ -35,7 +35,7 @@ void correlate(int ny, int nx, const float* data, float* result){
       for (k=0; k<nx; ++k){       //Move through columns of X
         sum += (X[j][k] * X[i][k]);
       }
-      result[i + rowNumber] += sum;
+      result[i + rowNumber] = sum;
     }
   }
 }
