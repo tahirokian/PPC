@@ -8,7 +8,7 @@
 void correlate(int ny, int nx, const float* data, float* result){
   int i, j, k, y, ii=0, vecPerRow;
   double rowMean, normFactor;
-  int rowStart, rowEnd, rowNumber, jvecRowNum, ivecRowNum;
+  int rowStart, rowEnd, rowNum, jRowNum, iRowNum;
   std::vector<double> zeroMeanVec(nx), elemSqrdVec(nx);
   std::vector<std::vector<double>> X(ny, std::vector<double>(nx));
   double4_t* matVec;
@@ -32,7 +32,7 @@ void correlate(int ny, int nx, const float* data, float* result){
     //Save the normalized result in a matrix of dimension ny*nx
     std::copy(zeroMeanVec.begin(), zeroMeanVec.end(), X[y].begin());
   }
-  /* Pre-processing for vector instructions */
+  /* Pre-processing for - Aliging data to use in vector instructions */
   for (j=0; j<ny; ++j){
     for (i=0; i<nx; i+=4){
       for (k=0; k<4; ++k){
@@ -46,19 +46,19 @@ void correlate(int ny, int nx, const float* data, float* result){
       ++ii;
     }
   }
-  #pragma omp parallel for schedule(dynamic) private(i, k, s, rowNumber, jvecRowNum, ivecRowNum)
+  #pragma omp parallel for schedule(dynamic) private(i, k, s, rowNum, jRowNum, iRowNum)
   for (j = 0; j < ny; ++j){
-    rowNumber = j * ny;
-    jvecRowNum = j * vecPerRow;
+    rowNum = j * ny;
+    jRowNum = j * vecPerRow;
     for (i = j; i < ny; ++i){
-      ivecRowNum = i * vecPerRow;
+      iRowNum = i * vecPerRow;
       s[0] = 0; s[1] = 0; s[2] = 0; s[3] = 0;
       asm("#foo");
       for (k = 0; k < vecPerRow; ++k){
-        s += matVec[jvecRowNum + k] * matVec[ivecRowNum + k];
+        s += matVec[jRowNum + k] * matVec[iRowNum + k];
       }
       asm("#bar");
-      result[i + rowNumber] = s[0] + s[1] + s[2] + s[3];
+      result[rowNum + i] = s[0] + s[1] + s[2] + s[3];
     }
   }
   free(matVec);
