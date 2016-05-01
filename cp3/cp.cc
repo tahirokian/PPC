@@ -32,7 +32,7 @@ void correlate(int ny, int nx, const float* data, float* result){
     //Save the normalized result in a matrix of dimension ny*nx
     std::copy(zeroMeanVec.begin(), zeroMeanVec.end(), X[y].begin());
   }
-  /* Pre-processing for - Aliging data to use in vector instructions */
+  /* Pre-processing - Aliging data to use in vector instructions */
   for (j=0; j<ny; ++j){
     for (i=0; i<nx; i+=4){
       for (k=0; k<4; ++k){
