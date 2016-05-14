@@ -56,7 +56,7 @@ void correlate(int ny, int nx, const float* data, float* result) {
   //Kernel call
   correlationKernel<<<gridSize, blockSize>>>(dataGPU, resultGPU, nx, ny);
   //Copy gpu data to host
-  cudaMemcpy(hostResult, resultGPU, outputSize * sizeof(float), cudaMemcpyDeviceToHost);
+  cudaMemcpy(result, resultGPU, outputSize * sizeof(float), cudaMemcpyDeviceToHost);
 
   //Matrix multiplication on CPU for comparison with GPU
   for (int j=0; j<ny; ++j){           //Move through rows of X
@@ -65,12 +65,12 @@ void correlate(int ny, int nx, const float* data, float* result) {
       for (int k=0; k<nx; ++k){       //Move through column of X and rows of XT
          sum += (hostData[(j*nx)+k] * hostData[(i*nx)+k]);
       }
-      result[i + (j*ny)] = float(sum);
+      hostResult[i + (j*ny)] = float(sum);
     }
   }
   
-  std::cout << "\nresult[0], hostResult[0]: " << result[0] << " " << hostResult[0] << std::endl;
-  std::cout << "result[ny*ny-1], hostResult[ny*ny-1]: " << result[(ny*ny)-1] << " " << hostResult[(ny*ny)-1] << std::endl;
+  //std::cout << "\nresult[0], hostResult[0]: " << result[0] << " " << hostResult[0] << std::endl;
+  //std::cout << "result[ny*ny-1], hostResult[ny*ny-1]: " << result[(ny*ny)-1] << " " << hostResult[(ny*ny)-1] << std::endl;
   cudaFree(hostData);
   cudaFree(hostResult);
   cudaFree(dataGPU);
