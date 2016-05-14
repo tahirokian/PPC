@@ -70,7 +70,7 @@ void correlate(int ny, int nx, const float* data, float* result) {
   }
   
   std::cout << "\nresult[0], hostResult[0]: " << result[0] << " " << hostResult[0] << std::endl;
-  std::cout << "result[ny-1], hostResult[ny-1]: " << result[ny-1] << " " << hostResult[ny-1] << std::endl;
+  std::cout << "result[ny*ny-1], hostResult[ny*ny-1]: " << result[(ny*ny)-1] << " " << hostResult[(ny*ny)-1] << std::endl;
   cudaFree(hostData);
   cudaFree(hostResult);
   cudaFree(dataGPU);
