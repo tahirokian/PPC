@@ -22,15 +22,15 @@ void correlate(int ny, int nx, const float* data, float* result) {
   int rowStart, rowEnd;
   size_t inputSize = ny * nx;
   size_t outputSize = ny * ny;
-  double* hostData = 0;
-  double* dataGPU = 0;
-  float* resultGPU = 0;
+  double* hostIn = 0;
+  double* deviceIn = 0;
+  float* deviceOut = 0;
   std::vector<double> zeroMeanVec(nx), elemSqrdVec(nx);
-  cudaMallocHost((void**) &hostData, inputSize * sizeof(double));
-  cudaMalloc((void**) &dataGPU, inputSize * sizeof(double));
-  cudaMalloc((void**) &resultGPU, outputSize * sizeof(float));
-  dim3 blockSize(8,8);                                                 			//block of 8x8x1
-  dim3 gridSize(std::ceil(double(ny)/blockSize.x), std::ceil(double(ny)/blockSize.y));	//grid of (ny/8)x(ny/8)x1
+  cudaMallocHost((void**) &hostIn, inputSize * sizeof(double));
+  cudaMalloc((void**) &deviceIn, inputSize * sizeof(double));
+  cudaMalloc((void**) &deviceOut, outputSize * sizeof(float));
+  dim3 blockSize(8,8);                                                 			//block of 8x8
+  dim3 gridSize(std::ceil(double(ny)/blockSize.x), std::ceil(double(ny)/blockSize.y));	//grid of (ny/8)x(ny/8)
   for(int y = 0; y < ny; ++y){
     rowStart = y*nx;
     rowEnd = nx+rowStart;
@@ -45,15 +45,16 @@ void correlate(int ny, int nx, const float* data, float* result) {
     //Normalize the current row so that the sum of the squares of the elements of the row is 1 with zero mean
     std::transform(zeroMeanVec.begin(), zeroMeanVec.end(), zeroMeanVec.begin(), [&normFactor](double val){ return (val / normFactor);});
     //Save the normalized result in a matrix of dimension ny*nx
-    std::copy(zeroMeanVec.begin(), zeroMeanVec.end(), hostData+rowStart);
+    std::copy(zeroMeanVec.begin(), zeroMeanVec.end(), hostIn+rowStart);
   }
-  //Copy host data to gpu
-  cudaMemcpy(dataGPU, hostData, inputSize * sizeof(double), cudaMemcpyHostToDevice);
+  //Copy host data to GPU
+  cudaMemcpy(deviceIn, hostIn, inputSize * sizeof(double), cudaMemcpyHostToDevice);
   //Kernel call
-  correlationKernel<<<gridSize, blockSize>>>(dataGPU, resultGPU, nx, ny);
-  //Copy gpu data to host
-  cudaMemcpy(result, resultGPU, outputSize * sizeof(float), cudaMemcpyDeviceToHost);
-  cudaFree(hostData);
-  cudaFree(dataGPU);
-  cudaFree(resultGPU);
+  correlationKernel<<<gridSize, blockSize>>>(deviceIn, deviceOut, nx, ny);
+  //Copy GPU data to host
+  cudaMemcpy(result, deviceOut, outputSize * sizeof(float), cudaMemcpyDeviceToHost);
+  //Free memory
+  cudaFree(hostIn);
+  cudaFree(deviceIn);
+  cudaFree(deviceOut);
 }
