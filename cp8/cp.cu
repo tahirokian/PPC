@@ -1,40 +1,36 @@
 #include <numeric>     // std::accumulate
-#include <algorithm>   // std::transform, std::copy, std::max
+#include <algorithm>   // std::transform, std::copy
 #include <vector>      // std::vector
-#include <cmath>       // std::sqrt
+#include <cmath>       // std::sqrt, std::ceil
 #include "cp.h"
 #include <cuda_runtime.h>
-#include <iostream>
 
 //Kernel code
 __global__ void correlationKernel(double* input, float* output, int nx, int ny){
-  double sum = 0;
   int x = threadIdx.x + blockIdx.x * blockDim.x;
   int y = threadIdx.y + blockIdx.y * blockDim.y;
-  if (x >= ny || y >= ny) // Exit if outside
+  double sum = 0;
+  if (x >= ny || y >= ny || x < y) // Exit if outside, do not calculate lower triangle
     return;
-  for (int i = 0; i < nx; ++i){
+  for (int i = 0; i < nx; ++i)
     sum += (input[(y*nx)+i] * input[(x*nx)+i]);
-  }
   output[(y*ny)+x] = float(sum);
 }
 
 void correlate(int ny, int nx, const float* data, float* result) {
   double rowMean, normFactor;
   int rowStart, rowEnd;
-  int inputSize = ny * nx;
-  int outputSize = ny * ny;
+  size_t inputSize = ny * nx;
+  size_t outputSize = ny * ny;
   double* hostData = 0;
   double* dataGPU = 0;
   float* resultGPU = 0;
-  float* hostResult = 0;
   std::vector<double> zeroMeanVec(nx), elemSqrdVec(nx);
-  cudaHostAlloc((void**) &hostData, inputSize * sizeof(double), cudaHostAllocMapped);
-  cudaHostAlloc((void**) &hostResult, outputSize * sizeof(float), cudaHostAllocMapped);
+  cudaMallocHost((void**) &hostData, inputSize * sizeof(double));
   cudaMalloc((void**) &dataGPU, inputSize * sizeof(double));
   cudaMalloc((void**) &resultGPU, outputSize * sizeof(float));
-  dim3 blockSize(8,8);                                                 //block of 8x8x1
-  dim3 gridSize(std::ceil(ny/blockSize.x), std::ceil(ny/blockSize.y)); //grid of (ny/8)x(ny/8)x1, each thread calculates one element of output matrix
+  dim3 blockSize(8,8);                                                 			//block of 8x8x1
+  dim3 gridSize(std::ceil(double(ny)/blockSize.x), std::ceil(double(ny)/blockSize.y));	//grid of (ny/8)x(ny/8)x1
   for(int y = 0; y < ny; ++y){
     rowStart = y*nx;
     rowEnd = nx+rowStart;
@@ -57,22 +53,7 @@ void correlate(int ny, int nx, const float* data, float* result) {
   correlationKernel<<<gridSize, blockSize>>>(dataGPU, resultGPU, nx, ny);
   //Copy gpu data to host
   cudaMemcpy(result, resultGPU, outputSize * sizeof(float), cudaMemcpyDeviceToHost);
-
-  //Matrix multiplication on CPU for comparison with GPU
-  for (int j=0; j<ny; ++j){           //Move through rows of X
-    for (int i=j; i<ny; ++i){         //Move through columns of XT
-      double sum = 0;
-      for (int k=0; k<nx; ++k){       //Move through column of X and rows of XT
-         sum += (hostData[(j*nx)+k] * hostData[(i*nx)+k]);
-      }
-      hostResult[i + (j*ny)] = float(sum);
-    }
-  }
-  
-  //std::cout << "\nresult[0], hostResult[0]: " << result[0] << " " << hostResult[0] << std::endl;
-  //std::cout << "result[ny*ny-1], hostResult[ny*ny-1]: " << result[(ny*ny)-1] << " " << hostResult[(ny*ny)-1] << std::endl;
   cudaFree(hostData);
-  cudaFree(hostResult);
   cudaFree(dataGPU);
   cudaFree(resultGPU);
 }
