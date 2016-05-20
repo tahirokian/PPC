@@ -4,7 +4,7 @@
 #include <cmath>       // std::sqrt, std::ceil
 #include "cp.h"
 #include <cuda_runtime.h>
-
+//kk
 #define TILE 16
 //Kernel code
 __global__ void correlationKernel(float* input, float* inputTr, float* output, int nx, int ny){
