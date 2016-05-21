@@ -5,7 +5,7 @@
 #include "cp.h"
 #include <cuda_runtime.h>
 
-#define TILE 16
+#define TILE 32
 
 //Kernel code
 __global__ void correlationKernel(float* input, float* inputTr, float* output, int nx, int ny){
