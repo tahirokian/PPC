@@ -1,0 +1,2 @@
+0
+Ok, looks really good! I don't know if implementing the private variables using the private-attribute is necessary on line 30, but it seems to work well performance-wise.
