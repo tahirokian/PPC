@@ -4,34 +4,36 @@
 #include <cmath>       // std::sqrt, std::ceil
 #include "cp.h"
 #include <cuda_runtime.h>
-//kk
+
 #define TILE 16
+
 //Kernel code
 __global__ void correlationKernel(float* input, float* inputTr, float* output, int nx, int ny){
   int bx = blockDim.x, by = blockDim.y;
   int tx = threadIdx.x, ty = threadIdx.y;
-  int row = ty + blockIdx.y * TILE;
-  int col = tx + blockIdx.x * TILE;
-  __shared__ float subInX[TILE][TILE];
-  __shared__ float subInY[TILE][TILE];
-  //if (row >= ny || col >= ny) // Exit if outside, do not calculate lower triangle
+  int y = ty + blockIdx.y * TILE;
+  int x = tx + blockIdx.x * TILE;
+  __shared__ float subIn1[TILE][TILE];
+  __shared__ float subIn2[TILE][TILE];
+  //if (x >= ny || y >= ny) // Exit if outside, do not calculate lower triangle
   //  return;
   float sum = 0.0;
-  for (int k = 0; k < (TILE + nx -1)/TILE; ++k){
-    if ((k * TILE + tx) < nx && row < ny)
-      subInX[ty][tx] = input[row*nx + k*TILE + tx];
+  #pragma unroll
+  for (int i = 0; i < (nx+TILE-1)/TILE; ++i){   //rounding up number of blocks value
+    if ((i * TILE + tx) < nx && y < ny)
+      subIn1[ty][tx] = input[y*nx + i*TILE + tx];
     else
-      subInX[ty][tx] = 0;
-    if ((k * TILE + ty) < nx && col < ny)
-      subInY[ty][tx] = inputTr[(k*TILE + ty)*ny + col];
+      subIn1[ty][tx] = 0;
+    if ((i * TILE + ty) < nx && x < ny)
+      subIn2[ty][tx] = inputTr[(i*TILE + ty)*ny + x];
     else
-      subInY[ty][tx] = 0;
+      subIn2[ty][tx] = 0;
     __syncthreads();
-    for (int n = 0; n < TILE; ++n)
-      sum += subInX[ty][n]*subInY[n][tx];
+    for (int j = 0; j < TILE; ++j)
+      sum += subIn1[ty][j]*subIn2[j][tx];
     __syncthreads();
   }
-  if (row < ny && col < ny)
+  if (x < ny && y < ny)
     output[((blockIdx.y*by+ty)*ny)+(blockIdx.x*bx)+tx] = sum;
 }
 
