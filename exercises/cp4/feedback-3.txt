@@ -1,2 +1,0 @@
-0
-Good work. Can you get it below 0.6s?

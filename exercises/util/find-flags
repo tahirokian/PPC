@@ -1,7 +1,0 @@
-#!/bin/sh
-
-if [ $(uname) = "Darwin" ]; then
-    echo "-Wa,-q"
-else
-    echo ""
-fi

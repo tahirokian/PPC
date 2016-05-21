@@ -1,3 +1,0 @@
-0
-OK, good performance.
-A matter of style (and preferences): don't declare everything at the top-level of the scope. Especially variables that are private to threads. E.g., use for(int i = 0; ... ) so the i variable be only in local scope of the for loop block. Use scoping to your advantage so the compiler can help you prevent/catch bugs.

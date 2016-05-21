@@ -1,1 +1,0 @@
-../mf0/pngmf.cc

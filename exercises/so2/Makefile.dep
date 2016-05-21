@@ -1,3 +1,0 @@
-error.o: error.cc error.h
-so-test.o: so-test.cc error.h timer.h so.h
-so.o: so.cc so.h

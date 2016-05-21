@@ -1,9 +1,0 @@
-#!/bin/sh
-
-for a in "gobjdump" "objdump"; do
-    if "$a" "--version" > /dev/null 2>&1; then
-        exec "$a" "$@"
-    fi
-done
-echo "could not find 'objdump'" >&2
-exit 1

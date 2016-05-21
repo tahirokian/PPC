@@ -1,2 +1,0 @@
-0
-Very good! Did you check if static is the optimal scheduling choice here?
