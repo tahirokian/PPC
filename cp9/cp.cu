@@ -19,7 +19,7 @@ __global__ void correlationKernel(float* input, float* inputTr, float* output, i
   //  return;
   float sum = 0.0;
   #pragma unroll
-  for (int i = 0; i < (nx+TILE-1)/TILE; ++i){   //rounding up number of blocks value
+  for (int i = 0; i < ((nx-1)/TILE)+1; ++i){   //rounding up number of blocks value
     if ((i * TILE + tx) < nx && y < ny)
       subIn1[ty][tx] = input[y*nx + i*TILE + tx];
     else
