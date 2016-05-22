@@ -16,7 +16,7 @@ __global__ void correlationKernel(float* input, float* inputTr, float* output, i
   __shared__ float subIn1[TILE][TILE];
   __shared__ float subIn2[TILE][TILE];
   float sum = 0.0;
-  for (int i = 0; i < ((nx-1)/TILE)+1; ++i){   //rounding up number of blocks value
+  for (int i = 0; i < ((nx-1)/TILE)+1; ++i){   //rounding up
     if ((i * TILE + tx) < nx && y < ny)
       subIn1[ty][tx] = input[y*nx + i*TILE + tx];
     else
@@ -51,8 +51,8 @@ void correlate(int ny, int nx, const float* data, float* result) {
   cudaMalloc((void**) &deviceIn, inputSize * sizeof(float));
   cudaMalloc((void**) &deviceInTr, inputSize * sizeof(float));
   cudaMalloc((void**) &deviceOut, outputSize * sizeof(float));
-  dim3 blockSize(TILE,TILE);                                                          //block of 8x8
-  dim3 gridSize(std::ceil(float(ny)/blockSize.x), std::ceil(float(ny)/blockSize.y));  //grid of (ny/8)x(ny/8)
+  dim3 blockSize(TILE,TILE);  
+  dim3 gridSize(std::ceil(float(ny)/blockSize.x), std::ceil(float(ny)/blockSize.y));
   for(int y = 0; y < ny; ++y){
     rowStart = y*nx;
     rowEnd = nx+rowStart;
