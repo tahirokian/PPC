@@ -72,5 +72,7 @@ Result segment(int ny, int nx, const float* data){
       }
     } 
   }
+  free(pixelVec);
+  free(sumVec);
   return result;
 }
