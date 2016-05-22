@@ -13,21 +13,21 @@ __global__ void correlationKernel(float* input, float* output, int nx, int ny){
   int tx = threadIdx.x, ty = threadIdx.y;
   int y = ty + blockIdx.y * TILE;
   int x = tx + blockIdx.x * TILE;
-  __shared__ float subInX[TILE][TILE];
-  __shared__ float subInY[TILE][TILE];
+  __shared__ float sub1[TILE][TILE];
+  __shared__ float sub2[TILE][TILE];
   float sum = 0.0;
   for (int i = 0; i < ((nx -1)/TILE)+1; ++i){   //rounding up
     if ((i * TILE + tx) < nx && y < ny)			
-      subInX[ty][tx] = input[y*nx + i*TILE + tx];
+      sub1[ty][tx] = input[y*nx + i*TILE + tx];
     else
-      subInX[ty][tx] = 0;
+      sub1[ty][tx] = 0;
     if ((i * TILE + ty) < nx && x < ny)			
-      subInY[ty][tx] = input[x*nx + i*TILE + ty];
+      sub2[ty][tx] = input[x*nx + i*TILE + ty];
     else
-      subInY[ty][tx] = 0;
+      sub2[ty][tx] = 0;
     __syncthreads();
     for (int j = 0; j < TILE; ++j)
-      sum += subInX[ty][j]*subInY[j][tx];
+      sum += sub1[ty][j]*sub2[j][tx];
     __syncthreads();
   }
   if (y < ny && x < ny)
