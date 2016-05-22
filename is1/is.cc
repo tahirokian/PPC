@@ -20,7 +20,6 @@ Result segment(int ny, int nx, const float* data){
       }
     }
   }
-  #pragma omp parallel for
   for (int i = 1; i <= ny; ++i){
     for (int j = 1; j <= nx; ++j){
       sumVec[(i*rowLen)+j] = pixelVec[(i*rowLen)+j] + sumVec[(i*rowLen)+(j-1)] + sumVec[((i-1)*rowLen)+j] - sumVec[((i-1)*rowLen)+(j-1)];
