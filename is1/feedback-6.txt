@@ -1,0 +1,2 @@
+0
+Good! Your implementation looks reasonable. Unfortunately I am unable to say immediately what is wrong so that you don't get a better performance. Something in the ballpark of 6-7 seconds should be doable with this basic approach.

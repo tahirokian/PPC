@@ -1,0 +1,4 @@
+0
+Good! One place for improvement seems immediate: you have lots of conditional statements inside your CUDA kernel starting at line 19; these are usually a bad idea in any kind of data copying or processing phase.
+
+You could also use memory accesses in a more efficient manner, computing multiple values for each memory access (to the shared memory).
